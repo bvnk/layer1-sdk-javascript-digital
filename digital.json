@@ -1,0 +1,3930 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Digital Asset",
+    "description": "Layer1 API making management of crypto assets simple and easy",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.staging.layer1.com",
+      "description": "Staging"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Asset Pool",
+      "description": "Create and manage asset pools"
+    },
+    {
+      "name": "Address",
+      "description": "Create and manage addresses"
+    },
+    {
+      "name": "Key Pair",
+      "description": "Create and manage key-pairs"
+    },
+    {
+      "name": "Transaction",
+      "description": "Create and manage transactions"
+    },
+    {
+      "name": "Fee",
+      "description": "Network fee estimation"
+    },
+    {
+      "name": "Screening",
+      "description": "Manage screening requests"
+    },
+    {
+      "name": "Export",
+      "description": "Create and manage data exports"
+    }
+  ],
+  "paths": {
+    "/digital/v1/screenings/action": {
+      "put": {
+        "tags": [
+          "Screening"
+        ],
+        "summary": "Approve or reject a held transfer",
+        "description": "Approves or rejects a held transfer based on the provided transfer ID and the destination address ID. Deposits can be only approved.",
+        "operationId": "manuallyActionHeldTransfer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManualActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "200": {
+            "description": "Transfer reviewed successfully"
+          },
+          "410": {
+            "description": "Withdrawal not found or has already been completed"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "screenings:edit"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/transaction-requests": {
+      "get": {
+        "tags": [
+          "Transaction Request"
+        ],
+        "summary": "List transaction requests",
+        "description": "Retrieve paginated list of transaction requests",
+        "operationId": "listTransactionRequests",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Query in lucene like format, e.g. reference:REF-12a1. Supported properties: reference, type",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assetPoolId",
+            "in": "query",
+            "description": "asset pool id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "description": "current page number",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "number of items in a page",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50,
+              "maximum": 500,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResultTransactionRequest"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "transactions:view"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Transaction Request"
+        ],
+        "summary": "Create transaction request",
+        "description": "Create a new blockchain transaction",
+        "operationId": "createTransaction",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransactionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionRequest"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "transactions:edit"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/transaction-claims": {
+      "post": {
+        "tags": [
+          "Transaction"
+        ],
+        "summary": "Claim blockchain transaction",
+        "description": "Claim an existing blockchain transaction",
+        "operationId": "claimTransaction",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransactionClaimRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "transactions:edit"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/staking-requests": {
+      "post": {
+        "tags": [
+          "Transaction Request"
+        ],
+        "summary": "Create staking transaction request",
+        "description": "Create a new blockchain staking transaction",
+        "operationId": "createStakingTransaction",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStakingTransactionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionRequest"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "transactions:edit"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/returns": {
+      "post": {
+        "tags": [
+          "Return"
+        ],
+        "summary": "Create return transaction request",
+        "description": "Create a new blockchain transaction meant to return previously deposited funds",
+        "operationId": "createReturnTransactionRequest",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionRequest"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "transactions:edit"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/key-pairs": {
+      "get": {
+        "tags": [
+          "Key Pair"
+        ],
+        "summary": "List key pairs",
+        "description": "Retrieve paginated list of key-pairs belonging to a asset pool",
+        "operationId": "listKeyPairs",
+        "parameters": [
+          {
+            "name": "assetPoolId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 64,
+              "maximum": 100,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResultKeyPair"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "keypairs:view"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Key Pair"
+        ],
+        "summary": "Create key pair",
+        "description": "Creates a new key pair from which different addresses can be created",
+        "operationId": "createKeyPair",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateKeyPairRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeyPair"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "keypairs:edit"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/fee-estimate": {
+      "post": {
+        "tags": [
+          "Fee"
+        ],
+        "summary": "Estimate transaction fee",
+        "description": "Estimate fee to send blockchain transaction",
+        "operationId": "estimateTransactionFee",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstimateTransactionFeeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetValue"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "fee-estimate:edit"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/exports": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "List all exports",
+        "description": "Retrieves a paginated list of exports based on type and pagination settings.",
+        "operationId": "getExports",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter exports by type",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 16,
+              "maximum": 100,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Paginated list of exports",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PaginatedExports"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "${exports.read-scope:exports:view}"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Create a balance export",
+        "description": "Initiates a job to export balance data in the CSV format.",
+        "operationId": "createBalanceExport",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBalanceExportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict: Export job is already running for the specified criteria",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Export job created successfully"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "exports:edit"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/asset-pools": {
+      "get": {
+        "tags": [
+          "Asset Pool"
+        ],
+        "summary": "List asset pools",
+        "description": "Retrieve paginated list of asset pools",
+        "operationId": "listAssetPools",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 64,
+              "maximum": 100,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "asset-pools:view"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Asset Pool"
+        ],
+        "summary": "Create asset pool",
+        "description": "Creates a new asset pool which serves as a collection of assets",
+        "operationId": "createAssetPool",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAssetPoolRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Tenant doesn't exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "asset-pools:edit"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/addresses": {
+      "get": {
+        "tags": [
+          "Address"
+        ],
+        "summary": "List addresses",
+        "description": "Retrieve paginated list of addresses",
+        "operationId": "listAddresses",
+        "parameters": [
+          {
+            "name": "assetPoolId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Query in lucene format. Supported fields: reference, customerId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 64,
+              "maximum": 100,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResultAddress"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "addresses:view"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Address"
+        ],
+        "summary": "Create a new address",
+        "description": "Creates a new address",
+        "operationId": "createAddress",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAddressRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Address"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted for asynchronous creation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Address"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "addresses:edit"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/addresses/validate": {
+      "post": {
+        "tags": [
+          "Address"
+        ],
+        "summary": "Validate address",
+        "description": "Validate a blockchain address",
+        "operationId": "validateAddress",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateAddressRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateAddressResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "addresses:edit"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/asset-pools/{assetPoolId}": {
+      "get": {
+        "tags": [
+          "Asset Pool"
+        ],
+        "summary": "Get asset pool",
+        "description": "Retrieve a specific asset pool given id",
+        "operationId": "getAssetPool",
+        "parameters": [
+          {
+            "name": "assetPoolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "asset-pools:view"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Asset Pool"
+        ],
+        "summary": "Delete asset pool",
+        "description": "Delete asset pool with given id if it has not addresses nor transactions created",
+        "operationId": "deleteAssetPool",
+        "parameters": [
+          {
+            "name": "assetPoolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          },
+          "412": {
+            "description": "If pool is not empty",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "asset-pools:edit"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Asset Pool"
+        ],
+        "summary": "Update asset pool",
+        "description": "Update an asset pool",
+        "operationId": "updateAssetPool",
+        "parameters": [
+          {
+            "name": "assetPoolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAssetPoolRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "asset-pools:edit"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/transactions": {
+      "get": {
+        "tags": [
+          "Transaction"
+        ],
+        "summary": "List transactions",
+        "description": "Retrieve paginated list of transactions",
+        "operationId": "listTransactions",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Query in lucene like format, e.g. hash:0x012a1. Supported properties: hash, reference, customerId, from, to. If time bounds are not provided default are applied",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assetPoolId",
+            "in": "query",
+            "description": "asset pool id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "description": "current page number",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "number of items in a page",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50,
+              "maximum": 500,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResultTransaction"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "transactions:view"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/transactions/{transactionId}": {
+      "get": {
+        "tags": [
+          "Transaction"
+        ],
+        "summary": "Get transaction",
+        "description": "Get transaction by id",
+        "operationId": "getTransactionById",
+        "parameters": [
+          {
+            "name": "transactionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Transaction"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "transactions:view"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/transaction-requests/{requestId}": {
+      "get": {
+        "tags": [
+          "Transaction Request"
+        ],
+        "summary": "Get transaction request",
+        "description": "Get transaction request by id",
+        "operationId": "getTransactionRequestById",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionRequest"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "transactions:view"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/screenings": {
+      "get": {
+        "tags": [
+          "Screening"
+        ],
+        "summary": "List screening results",
+        "description": "Retrieves a paginated list of the most recent transfers along with their screening results.",
+        "operationId": "listScreenings",
+        "parameters": [
+          {
+            "name": "hash",
+            "in": "query",
+            "description": "Filter by transaction hash",
+            "required": false,
+            "deprecated": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "operation",
+            "in": "query",
+            "description": "Set of operations to filter by",
+            "required": false,
+            "deprecated": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "DEPOSIT",
+                  "WITHDRAWAL",
+                  "CONSOLIDATION",
+                  "RETURN",
+                  "STAKE",
+                  "UNSTAKE",
+                  "DELEGATE",
+                  "UNDELEGATE",
+                  "RELEASE"
+                ]
+              },
+              "uniqueItems": true
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Set of screening states to filter by",
+            "required": false,
+            "deprecated": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "APPROVED",
+                  "REJECTED",
+                  "PENDING_SCREENING"
+                ]
+              },
+              "uniqueItems": true
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "Start date for filtering by transfer creation date",
+            "required": false,
+            "deprecated": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "End date for filtering by transfer creation date",
+            "required": false,
+            "deprecated": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 16,
+              "maximum": 100,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "screeningId.transfer.id.createdAt,desc"
+            },
+            "example": "screeningId.transfer.id.createdAt,desc"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Query using Lucene-like syntax. Supported properties: notReasonCode, reasonCode, reason, hash, state, operation, from, to",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "notReasonCode:DUST_AMOUNT"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "List screenings successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedScreenings"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "screenings:view"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/networks": {
+      "get": {
+        "tags": [
+          "Network"
+        ],
+        "summary": "Get all networks",
+        "description": "Get all supported networks and their assets. By default, only enabled networks are returned.",
+        "operationId": "getNetworks",
+        "parameters": [
+          {
+            "name": "includeDisabled",
+            "in": "query",
+            "description": "Include disabled networks in the response",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Network"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "networks:view"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/key-pairs/{keyPairId}": {
+      "get": {
+        "tags": [
+          "Key Pair"
+        ],
+        "summary": "Get key pair",
+        "description": "Retrieve a key pair given id",
+        "operationId": "getKeyPair",
+        "parameters": [
+          {
+            "name": "keyPairId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeyPair"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "keypairs:view"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/exports/{id}": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Get export with a download link",
+        "description": "Retrieves export details with a short-lived download link by its ID.",
+        "operationId": "getExport",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the export to retrieve",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Export details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Export"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Export not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "${exports.read-scope:exports:view}"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/asset-pools/{assetPoolId}/max-withdrawable-amount": {
+      "get": {
+        "tags": [
+          "Asset Pool"
+        ],
+        "summary": "Get max asset pool withdrawable balance",
+        "description": "Retrieve maximal approximate (does not take fees into account) amount withdrawable for specific network and asset",
+        "operationId": "getAssetPoolMaxWithdrawableAmount",
+        "parameters": [
+          {
+            "name": "assetPoolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "network",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "BASE",
+                "BINANCE",
+                "BITCOIN",
+                "BITCOIN_CASH",
+                "DOGECOIN",
+                "ETHEREUM",
+                "LITECOIN",
+                "POLYGON",
+                "RIPPLE",
+                "SOLANA",
+                "TRON"
+              ]
+            }
+          },
+          {
+            "name": "asset",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Balance"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "asset-pools:view"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/asset-pools/{assetPoolId}/balances": {
+      "get": {
+        "tags": [
+          "Asset Pool"
+        ],
+        "summary": "Get asset pool balance",
+        "description": "Retrieve an asset pool balance for specific network and asset",
+        "operationId": "getAssetPoolBalance",
+        "parameters": [
+          {
+            "name": "assetPoolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "network",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "BASE",
+                "BINANCE",
+                "BITCOIN",
+                "BITCOIN_CASH",
+                "DOGECOIN",
+                "ETHEREUM",
+                "LITECOIN",
+                "POLYGON",
+                "RIPPLE",
+                "SOLANA",
+                "TRON"
+              ]
+            }
+          },
+          {
+            "name": "asset",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Balance"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "asset-pools:view"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/asset-pools/summary": {
+      "get": {
+        "tags": [
+          "Asset Pool"
+        ],
+        "summary": "Get asset pool summary",
+        "description": "Retrieve authenticated summary across all asset pools.",
+        "operationId": "getAssetPoolSummary",
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetPoolSummary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "asset-pools:view"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/addresses/{addressId}": {
+      "get": {
+        "tags": [
+          "Address"
+        ],
+        "summary": "Get address",
+        "description": "Retrieve select address details",
+        "operationId": "getAddress",
+        "parameters": [
+          {
+            "name": "addressId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Address"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "addresses:view"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    },
+    "/digital/v1/addresses/{addressId}/tags": {
+      "get": {
+        "tags": [
+          "Address"
+        ],
+        "summary": "List address tags",
+        "description": "Retrieve paginated list of address tags",
+        "operationId": "listTags",
+        "parameters": [
+          {
+            "name": "addressId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 64,
+              "maximum": 100,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Request invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Standard error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResultAddress"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "addresses:view"
+            ]
+          },
+          {
+            "httpSignature": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "$ref": "#/components/schemas/Detail"
+          }
+        }
+      },
+      "Detail": {
+        "type": "object",
+        "properties": {
+          "documentLink": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "ManualActionRequest": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "Screening action to execute on the transfer",
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ],
+            "example": "APPROVE"
+          },
+          "operation": {
+            "type": "string",
+            "description": "Transaction type",
+            "enum": [
+              "DEPOSIT",
+              "WITHDRAWAL"
+            ],
+            "example": "DEPOSIT"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for approving or rejecting the suspended transfer",
+            "example": "Confirmed false positive"
+          },
+          "transferId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Transfer identifier for which screening is performed",
+            "example": "018f5bdd-ca48-70bd-9df1-daccba5e0dc0"
+          },
+          "addressId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Specific destination address identifier for which screening is performed. Required only for deposits.",
+            "example": "11e785c1-a31a-4de9-9585-351056bea639"
+          }
+        },
+        "required": [
+          "action",
+          "operation",
+          "reason",
+          "transferId"
+        ]
+      },
+      "Failure": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "reason for failure",
+            "example": "INSUFFICIENT_FUNDS"
+          },
+          "message": {
+            "type": "string",
+            "description": "error message",
+            "example": "insufficient funds on address 0x1234567890abcdef1234567890abcdef12345678"
+          }
+        }
+      },
+      "Participant": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "blockchain address",
+            "example": "0x1234567890abcdef1234567890abcdef12345678"
+          },
+          "amount": {
+            "format": "number",
+            "description": "transaction amount",
+            "example": 0.00010
+          },
+          "asset": {
+            "type": "string",
+            "description": "Optional currency if different than in parent object",
+            "example": "ETH"
+          },
+          "tag": {
+            "type": "string",
+            "description": "destination tag that serves as optional payment identifier. Only applicable to select networks like Ripple, Solana etc.",
+            "example": 123456789
+          }
+        }
+      },
+      "TransactionRequest": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "transaction request id"
+          },
+          "asset": {
+            "type": "string",
+            "description": "currency",
+            "example": "USDT"
+          },
+          "assetPoolId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "asset pool id"
+          },
+          "network": {
+            "type": "string",
+            "description": "crypto network",
+            "example": "ETHEREUM"
+          },
+          "reference": {
+            "type": "string",
+            "description": "custom identifier supplied for transaction that is used to link transaction to specific customer or use case",
+            "example": "myUniqueRef333"
+          },
+          "status": {
+            "type": "string",
+            "description": "transaction request status",
+            "enum": [
+              "BLOCKED",
+              "CONFIRMED",
+              "CREATED",
+              "DETECTED",
+              "FAILED",
+              "FUNDS_RESERVED",
+              "HELD",
+              "REJECTED",
+              "SCREENING_PASSED",
+              "SCREENING_REQUESTED",
+              "SIGNED",
+              "SUCCESS",
+              "UNCONFIRMED",
+              "REPLACED"
+            ]
+          },
+          "sources": {
+            "type": "array",
+            "description": "requested list of addresses and amounts that fund the transaction",
+            "items": {
+              "$ref": "#/components/schemas/Participant"
+            }
+          },
+          "destinations": {
+            "type": "array",
+            "description": "requested list of recipient addresses and amounts that benefit from the transaction",
+            "items": {
+              "$ref": "#/components/schemas/Participant"
+            }
+          },
+          "type": {
+            "type": "string",
+            "description": "transaction request type",
+            "enum": [
+              "DEPOSIT",
+              "WITHDRAWAL",
+              "CONSOLIDATION",
+              "RETURN",
+              "STAKE",
+              "UNSTAKE",
+              "DELEGATE",
+              "UNDELEGATE",
+              "RELEASE"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "timestamp when transaction request was created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "timestamp when transaction request was updated"
+          },
+          "failure": {
+            "$ref": "#/components/schemas/Failure",
+            "description": "failure details"
+          }
+        }
+      },
+      "CreateTransactionRequest": {
+        "type": "object",
+        "properties": {
+          "assetPoolId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "asset pool id"
+          },
+          "asset": {
+            "type": "string",
+            "description": "currency",
+            "example": "USDT"
+          },
+          "network": {
+            "type": "string",
+            "description": "crypto network",
+            "example": "ETHEREUM"
+          },
+          "reference": {
+            "type": "string",
+            "description": "custom identifier supplied for transaction that is used to link transaction to specific customer or use case",
+            "example": "myUniqueRef333"
+          },
+          "sources": {
+            "type": "array",
+            "description": "(Optional) list of addresses and amounts that fund the transaction",
+            "items": {
+              "$ref": "#/components/schemas/Participant"
+            }
+          },
+          "destinations": {
+            "type": "array",
+            "description": "list of recipient addresses and amounts that benefit from the transaction",
+            "items": {
+              "$ref": "#/components/schemas/Participant"
+            }
+          }
+        }
+      },
+      "TransactionClaimRequest": {
+        "type": "object",
+        "properties": {
+          "hash": {
+            "type": "string",
+            "description": "blockchain transaction hash",
+            "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+          },
+          "network": {
+            "type": "string",
+            "description": "crypto network",
+            "example": "ETHEREUM"
+          }
+        }
+      },
+      "CreateStakingTransactionRequest": {
+        "type": "object",
+        "properties": {
+          "assetPoolId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "asset pool id"
+          },
+          "asset": {
+            "type": "string",
+            "description": "currency",
+            "example": "TRX"
+          },
+          "network": {
+            "type": "string",
+            "description": "crypto network",
+            "example": "TRON"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "STAKE",
+              "UNSTAKE",
+              "RELEASE"
+            ]
+          },
+          "reference": {
+            "type": "string",
+            "description": "custom identifier supplied for transaction that is used to link transaction to specific customer or use case",
+            "example": "myUniqueRef333"
+          },
+          "address": {
+            "type": "string",
+            "description": "blockchain address",
+            "example": "TNx5eZNjpmKw8s1a3GB1VBH246uf9V6pfe"
+          },
+          "amount": {
+            "format": "number",
+            "description": "stake transaction amount",
+            "example": 1000
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ReturnRequest": {
+        "type": "object",
+        "properties": {
+          "transactionId": {
+            "type": "string",
+            "description": "ID of the transaction to return"
+          },
+          "destinationAddress": {
+            "type": "string",
+            "description": "address into which funds should be returned"
+          }
+        }
+      },
+      "KeyPair": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "key pair id"
+          },
+          "reference": {
+            "type": "string",
+            "description": "custom identifier supplied for key pair that is used to link key pair to specific customer or use case",
+            "example": "myUniqueRef333"
+          },
+          "assetPoolId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "asset pool id"
+          },
+          "master": {
+            "type": "boolean",
+            "description": "whether this is a master key for the asset pool"
+          }
+        }
+      },
+      "CreateKeyPairRequest": {
+        "type": "object",
+        "properties": {
+          "assetPoolId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "asset pool id"
+          },
+          "reference": {
+            "type": "string",
+            "description": "custom identifier supplied for key pair that is used to link key pair to specific customer or use case",
+            "example": "myUniqueRef333"
+          },
+          "master": {
+            "type": "boolean",
+            "description": "whether this is a master key for the asset pool"
+          }
+        }
+      },
+      "AssetValue": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "format": "number",
+            "description": "transaction amount",
+            "example": 0.00010
+          },
+          "asset": {
+            "type": "string",
+            "description": "currency",
+            "example": "BTC"
+          }
+        }
+      },
+      "EstimateTransactionFeeRequest": {
+        "type": "object",
+        "properties": {
+          "asset": {
+            "type": "string",
+            "description": "currency",
+            "example": "USDT"
+          },
+          "network": {
+            "type": "string",
+            "description": "crypto network",
+            "example": "ETHEREUM"
+          },
+          "sources": {
+            "type": "array",
+            "description": "(Optional) list of addresses and amounts that fund the transaction",
+            "items": {
+              "$ref": "#/components/schemas/Participant"
+            }
+          },
+          "destinations": {
+            "type": "array",
+            "description": "(Optional) list of recipient addresses and amounts that benefit from the transaction",
+            "items": {
+              "$ref": "#/components/schemas/Participant"
+            }
+          }
+        }
+      },
+      "CreateBalanceExportRequest": {
+        "type": "object",
+        "properties": {
+          "network": {
+            "type": "string",
+            "deprecated": true,
+            "description": "network",
+            "enum": [
+              "BASE",
+              "BINANCE",
+              "BITCOIN",
+              "BITCOIN_CASH",
+              "DOGECOIN",
+              "ETHEREUM",
+              "LITECOIN",
+              "POLYGON",
+              "RIPPLE",
+              "SOLANA",
+              "TRON"
+            ],
+            "example": "BITCOIN"
+          },
+          "asset": {
+            "type": "string",
+            "deprecated": true,
+            "description": "asset",
+            "example": "BTC"
+          },
+          "networks": {
+            "type": "array",
+            "description": "networks",
+            "example": "[BITCOIN]",
+            "items": {
+              "type": "string",
+              "enum": [
+                "BASE",
+                "BINANCE",
+                "BITCOIN",
+                "BITCOIN_CASH",
+                "DOGECOIN",
+                "ETHEREUM",
+                "LITECOIN",
+                "POLYGON",
+                "RIPPLE",
+                "SOLANA",
+                "TRON"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "assets": {
+            "type": "array",
+            "description": "assets",
+            "example": "[BTC]",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "assetPoolId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the asset pool for which the report will be generated."
+          }
+        }
+      },
+      "CreateAssetPoolRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "name of asset pool",
+            "example": "Payment Processing Spanish VASP"
+          },
+          "reference": {
+            "type": "string",
+            "description": "custom supplied identifier for asset pool. Also used to initialise master key pair",
+            "example": "myUniqueRef333"
+          }
+        }
+      },
+      "Address": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "internal id"
+          },
+          "address": {
+            "type": "string",
+            "description": "blockchain address",
+            "example": "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq"
+          },
+          "assetPoolId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "asset pool id"
+          },
+          "network": {
+            "type": "string",
+            "description": "crypto network",
+            "example": "BITCOIN"
+          },
+          "keyPairId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "key pair id"
+          },
+          "reference": {
+            "type": "string",
+            "description": "key pair reference"
+          },
+          "supportedAssets": {
+            "type": "array",
+            "description": "list of assets supported by network",
+            "example": [
+              "BTC"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "aliases": {
+            "type": "array",
+            "description": "alternative address (e.g. BTC has segwitt and legacy format)",
+            "example": [
+              "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "tag": {
+            "type": "string",
+            "description": "destination tag that serves as optional payment identifier. Only applicable to select networks like Ripple, Solana etc.",
+            "example": 123456789
+          },
+          "balances": {
+            "type": "array",
+            "description": "address balances",
+            "items": {
+              "$ref": "#/components/schemas/Balance"
+            }
+          },
+          "customerId": {
+            "type": "string",
+            "description": "custom non-unique identifier supplied for address that is used to link address to external entity like customer",
+            "example": "cust123456789"
+          },
+          "master": {
+            "type": "boolean",
+            "description": "flag indicating whether this address is asset pool master address"
+          },
+          "supportedNetworks": {
+            "type": "array",
+            "description": "list of networks supporting given asset. mutually exclusive with network and supportedAssets",
+            "example": [
+              "ETHEREUM"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Balance": {
+        "type": "object",
+        "properties": {
+          "network": {
+            "type": "string",
+            "description": "network",
+            "enum": [
+              "BASE",
+              "BINANCE",
+              "BITCOIN",
+              "BITCOIN_CASH",
+              "DOGECOIN",
+              "ETHEREUM",
+              "LITECOIN",
+              "POLYGON",
+              "RIPPLE",
+              "SOLANA",
+              "TRON"
+            ],
+            "example": "BITCOIN"
+          },
+          "asset": {
+            "type": "string",
+            "description": "asset",
+            "example": "BTC"
+          },
+          "available": {
+            "format": "number",
+            "description": "balance available",
+            "example": 0.00010
+          },
+          "reserved": {
+            "format": "number",
+            "description": "reserved balance, for example for withdrawal processing",
+            "example": 0.00010
+          },
+          "blockchain": {
+            "format": "number",
+            "description": "physical balance as seen on blockchain",
+            "example": 0.00010
+          }
+        }
+      },
+      "CreateAddressRequest": {
+        "type": "object",
+        "properties": {
+          "assetPoolId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "asset pool id"
+          },
+          "network": {
+            "type": "string",
+            "description": "crypto network",
+            "example": "BITCOIN"
+          },
+          "asset": {
+            "type": "string",
+            "description": "crypto currency for which address(es) should be created. if network is not given will create addreses in all networks supporting given asset",
+            "example": "BTC"
+          },
+          "reference": {
+            "type": "string",
+            "description": "unique identifier for each destination that is receiving funds (whether tag or address). Similar to banking reference it is used to link deposit to a specific invoice",
+            "example": "myUniqueRef333"
+          },
+          "customerId": {
+            "type": "string",
+            "description": "custom non-unique identifier supplied for address that is used to link address to external entity like customer, merchant, company, etc.",
+            "example": "customer123"
+          }
+        }
+      },
+      "ValidateAddressRequest": {
+        "type": "object",
+        "properties": {
+          "network": {
+            "type": "string",
+            "description": "crypto network",
+            "example": "ETHEREUM"
+          },
+          "address": {
+            "type": "string",
+            "description": "blockchain address",
+            "example": "0x1234567890abcdef1234567890abcdef12345678"
+          },
+          "tag": {
+            "type": "string",
+            "description": "destination tag that serves as optional payment identifier. Only applicable to select networks like Ripple, Solana etc.",
+            "example": 123456789
+          }
+        }
+      },
+      "ValidateAddressResponse": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "description": "whether the address is valid"
+          },
+          "errors": {
+            "type": "array",
+            "description": "list of error messages if the address is invalid",
+            "example": [
+              "invalid format",
+              "should be 32 characters"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UpdateAssetPoolRequest": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "string",
+            "description": "name of asset pool property",
+            "enum": [
+              "masterKeyPairId",
+              "reference"
+            ],
+            "example": "masterKeyPairId"
+          },
+          "value": {
+            "type": "string",
+            "description": "value for the property"
+          }
+        }
+      },
+      "BlockDetail": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "integer",
+            "format": "int64",
+            "description": "blockchain number",
+            "example": 123456
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "timestamp of the block",
+            "example": "2021-01-01T00:00:00Z"
+          }
+        }
+      },
+      "NetworkDetail": {
+        "type": "object",
+        "properties": {
+          "block": {
+            "$ref": "#/components/schemas/BlockDetail",
+            "description": "block detail such as number and timestamp"
+          },
+          "fee": {
+            "$ref": "#/components/schemas/AssetValue",
+            "description": "network fee on the blockchain"
+          }
+        }
+      },
+      "Pageable": {
+        "type": "object",
+        "properties": {
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32",
+            "description": "current page number"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "number of items in page"
+          }
+        }
+      },
+      "PaginatedResultTransaction": {
+        "type": "object",
+        "properties": {
+          "totalElements": {
+            "type": "integer",
+            "format": "int64",
+            "description": "total number of items in all pages"
+          },
+          "content": {
+            "type": "array",
+            "description": "list of items",
+            "items": {
+              "$ref": "#/components/schemas/Transaction"
+            }
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/Pageable"
+          }
+        }
+      },
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "transaction id"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address",
+            "description": "address involved in the transaction"
+          },
+          "reference": {
+            "type": "string",
+            "description": "custom identifier supplied for transaction that is used to link transaction to specific customer or use case",
+            "example": "myUniqueRef333"
+          },
+          "status": {
+            "type": "string",
+            "description": "transaction status",
+            "enum": [
+              "BLOCKED",
+              "CONFIRMED",
+              "CREATED",
+              "DETECTED",
+              "FAILED",
+              "FUNDS_RESERVED",
+              "HELD",
+              "REJECTED",
+              "SCREENING_PASSED",
+              "SCREENING_REQUESTED",
+              "SIGNED",
+              "SUCCESS",
+              "UNCONFIRMED",
+              "REPLACED"
+            ]
+          },
+          "sources": {
+            "type": "array",
+            "description": "list of addresses and amounts that fund the transaction",
+            "items": {
+              "$ref": "#/components/schemas/Participant"
+            }
+          },
+          "destinations": {
+            "type": "array",
+            "description": "list of recipient addresses and amounts that benefit from the transaction",
+            "items": {
+              "$ref": "#/components/schemas/Participant"
+            }
+          },
+          "type": {
+            "type": "string",
+            "description": "transaction type",
+            "enum": [
+              "DEPOSIT",
+              "WITHDRAWAL",
+              "CONSOLIDATION",
+              "RETURN",
+              "STAKE",
+              "UNSTAKE",
+              "DELEGATE",
+              "UNDELEGATE",
+              "RELEASE"
+            ]
+          },
+          "asset": {
+            "type": "string",
+            "description": "currency",
+            "example": "USDT"
+          },
+          "amount": {
+            "format": "number",
+            "description": "amount added to/subtracted from address",
+            "example": null
+          },
+          "hash": {
+            "type": "string",
+            "description": "blockchain transaction hash",
+            "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+          },
+          "networkDetail": {
+            "$ref": "#/components/schemas/NetworkDetail",
+            "description": "network details of the transaction"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/TransactionMetadata",
+            "description": "metadata about the transaction"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "timestamp when transaction was created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "timestamp when transaction was updated"
+          }
+        }
+      },
+      "TransactionMetadata": {
+        "type": "object",
+        "properties": {
+          "failure": {
+            "$ref": "#/components/schemas/Failure",
+            "description": "information about why the transaction failed"
+          }
+        }
+      },
+      "PaginatedResultTransactionRequest": {
+        "type": "object",
+        "properties": {
+          "totalElements": {
+            "type": "integer",
+            "format": "int64",
+            "description": "total number of items in all pages"
+          },
+          "content": {
+            "type": "array",
+            "description": "list of items",
+            "items": {
+              "$ref": "#/components/schemas/TransactionRequest"
+            }
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/Pageable"
+          }
+        }
+      },
+      "PaginatedScreenings": {
+        "type": "object",
+        "properties": {
+          "totalElements": {
+            "type": "integer",
+            "format": "int64",
+            "description": "total number of items in all pages"
+          },
+          "content": {
+            "type": "array",
+            "description": "list of items",
+            "items": {
+              "$ref": "#/components/schemas/ScreeningView"
+            }
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/Pageable"
+          }
+        }
+      },
+      "ScreeningMetadata": {
+        "type": "object",
+        "properties": {
+          "urls": {
+            "type": "array",
+            "description": "URLs to external screening providers relevant to the deposit",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ids": {
+            "type": "array",
+            "description": "Deposit screening identifiers within external screening providers",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ScreeningView": {
+        "type": "object",
+        "properties": {
+          "transactionId": {
+            "type": "string",
+            "description": "Unique identifier of the transaction",
+            "example": "e7b67a42-ebb7-4f35-913b-29d89068e74c"
+          },
+          "transactionHash": {
+            "type": "string",
+            "description": "Blockchain transaction hash",
+            "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+          },
+          "transactionStatus": {
+            "type": "string",
+            "description": "Current status of the transaction",
+            "enum": [
+              "BLOCKED",
+              "CONFIRMED",
+              "CREATED",
+              "DETECTED",
+              "FAILED",
+              "FUNDS_RESERVED",
+              "HELD",
+              "REJECTED",
+              "SCREENING_PASSED",
+              "SCREENING_REQUESTED",
+              "SIGNED",
+              "SUCCESS",
+              "UNCONFIRMED",
+              "REPLACED"
+            ],
+            "example": "SCREENING_PASSED"
+          },
+          "network": {
+            "type": "string",
+            "description": "Network code used for the transaction",
+            "example": "ETHEREUM"
+          },
+          "transactionMetadata": {
+            "$ref": "#/components/schemas/TransactionMetadata",
+            "description": "Transaction metadata in JSON format"
+          },
+          "transactionCreatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the transaction was created"
+          },
+          "transactionUpdatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the transaction was last updated"
+          },
+          "screeningState": {
+            "type": "string",
+            "description": "Screening state of the transaction",
+            "enum": [
+              "APPROVED",
+              "REJECTED",
+              "PENDING_SCREENING"
+            ],
+            "example": "PENDING_SCREENING"
+          },
+          "screeningReason": {
+            "type": "string",
+            "description": "Reason for the screening result",
+            "example": "Manual review required"
+          },
+          "screeningReasonCode": {
+            "type": "string",
+            "description": "Reason code for the screening result",
+            "example": "DUST_AMOUNT"
+          },
+          "screeningCreatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the screening was created"
+          },
+          "screeningUpdatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the screening was last updated"
+          },
+          "screeningMetadata": {
+            "$ref": "#/components/schemas/ScreeningMetadata",
+            "description": "Screening metadata in JSON format"
+          },
+          "participants": {
+            "type": "array",
+            "description": "List of participants involved in the transaction",
+            "items": {
+              "$ref": "#/components/schemas/Participant"
+            }
+          },
+          "operation": {
+            "type": "string",
+            "description": "Operation type for the screening",
+            "enum": [
+              "DEPOSIT",
+              "WITHDRAWAL",
+              "CONSOLIDATION",
+              "RETURN",
+              "STAKE",
+              "UNSTAKE",
+              "DELEGATE",
+              "UNDELEGATE",
+              "RELEASE"
+            ],
+            "example": "WITHDRAWAL"
+          },
+          "addressId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the address involved in the screening",
+            "example": "fefc3e7b-743b-489f-9311-0921f4930dc7"
+          }
+        }
+      },
+      "Asset": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "currency code",
+            "example": "BTC"
+          },
+          "decimalPrecision": {
+            "type": "integer",
+            "format": "int32",
+            "description": "currency decimal precision"
+          },
+          "model": {
+            "type": "string",
+            "description": "transaction model supported by the asset",
+            "enum": [
+              "UTXO",
+              "ACCOUNT",
+              "CONTRACT"
+            ]
+          }
+        }
+      },
+      "Network": {
+        "type": "object",
+        "properties": {
+          "network": {
+            "type": "string",
+            "description": "crypto network",
+            "example": "BITCOIN"
+          },
+          "nativeAsset": {
+            "type": "string",
+            "description": "native network currency",
+            "example": "BTC"
+          },
+          "supportedAssets": {
+            "type": "array",
+            "description": "list of assets supported by network",
+            "items": {
+              "$ref": "#/components/schemas/Asset"
+            }
+          },
+          "tagSupported": {
+            "type": "boolean",
+            "default": false,
+            "description": "whether network supports address tags"
+          }
+        }
+      },
+      "PaginatedResultKeyPair": {
+        "type": "object",
+        "properties": {
+          "totalElements": {
+            "type": "integer",
+            "format": "int64",
+            "description": "total number of items in all pages"
+          },
+          "content": {
+            "type": "array",
+            "description": "list of items",
+            "items": {
+              "$ref": "#/components/schemas/KeyPair"
+            }
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/Pageable"
+          }
+        }
+      },
+      "Export": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the export",
+            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the export job",
+            "enum": [
+              "PROCESSING",
+              "COMPLETED",
+              "FAILED"
+            ],
+            "example": "PROCESSING"
+          },
+          "type": {
+            "type": "string",
+            "description": "Export type name",
+            "example": "transaction"
+          },
+          "inputParameters": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "JSON string containing input parameters for the job",
+            "example": {
+              "from": "2020-01-01T00:00:00Z",
+              "to": "2020-01-31T23:59:59Z"
+            }
+          },
+          "filename": {
+            "type": "string",
+            "description": "Filename of the resulting export",
+            "example": "transaction_2024_04_19T11_20_11_901Z.csv"
+          },
+          "url": {
+            "type": "string",
+            "description": "URL for file download"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the export was created",
+            "example": "2020-01-01T00:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the export was last updated",
+            "example": "2020-01-02T12:34:56Z"
+          }
+        }
+      },
+      "PaginatedExports": {
+        "type": "object",
+        "properties": {
+          "totalElements": {
+            "type": "integer",
+            "format": "int64",
+            "description": "total number of items in all pages"
+          },
+          "content": {
+            "type": "array",
+            "description": "list of items",
+            "items": {
+              "$ref": "#/components/schemas/Export"
+            }
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/Pageable"
+          }
+        }
+      },
+      "AssetPoolSummary": {
+        "type": "object",
+        "properties": {
+          "balances": {
+            "type": "array",
+            "description": "balances summary",
+            "items": {
+              "$ref": "#/components/schemas/Balance"
+            }
+          }
+        }
+      },
+      "PaginatedResultAddress": {
+        "type": "object",
+        "properties": {
+          "totalElements": {
+            "type": "integer",
+            "format": "int64",
+            "description": "total number of items in all pages"
+          },
+          "content": {
+            "type": "array",
+            "description": "list of items",
+            "items": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/Pageable"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "openId": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://auth.sandbox.layer1.com/auth/realms/bvnk/.well-known/openid-configuration"
+      },
+      "httpSignature": {
+        "type": "http",
+        "scheme": "signature"
+      },
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://auth.sandbox.layer1.com/auth/realms/bvnk/protocol/openid-connect/token",
+            "scopes": {}
+          }
+        }
+      }
+    }
+  }
+}
