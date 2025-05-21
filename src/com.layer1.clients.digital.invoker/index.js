@@ -95,12 +95,28 @@ import TransactionRequestApi from './com.layer1.clients.digital.api/TransactionR
 * @module com.layer1.clients.digital.invoker/index
 * @version 1.0.0
 */
+// Import authentication classes
+import Layer1ApiClient from '../com.layer1.clients.digital.auth/Layer1ApiClient';
+import Layer1Digest from '../com.layer1.clients.digital.auth/Layer1Digest';
+
 export {
     /**
      * The ApiClient constructor.
      * @property {module:com.layer1.clients.digital.invoker/ApiClient}
      */
     ApiClient,
+    
+    /**
+     * The Layer1ApiClient constructor.
+     * @property {module:com.layer1.clients.digital.auth/Layer1ApiClient}
+     */
+    Layer1ApiClient,
+    
+    /**
+     * The Layer1Digest constructor.
+     * @property {module:com.layer1.clients.digital.auth/Layer1Digest}
+     */
+    Layer1Digest,
 
     /**
      * The Address model constructor.

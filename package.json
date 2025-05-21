@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "description": "Layer1 API making management of crypto assets simple and easy",
   "license": "Unlicense",
+  "type": "module",
   "main": "dist/com.layer1.clients.digital.invoker/index.js",
   "scripts": {
     "build": "babel src -d dist",
     "prepare": "npm run build",
-    "test": "mocha --require @babel/register --recursive"
+    "test": "mocha --require @babel/register --recursive",
+    "create-address": "node cli/create-address.js"
   },
   "browser": {
     "fs": false
@@ -41,6 +43,7 @@
     "sinon": "^7.2.0"
   },
   "files": [
-    "dist"
+    "dist",
+    "cli"
   ]
 }
